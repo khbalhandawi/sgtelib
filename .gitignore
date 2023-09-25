@@ -8,3 +8,37 @@ sgtelib_predict/sgtelib_predict.vcxproj.filters
 VisualStudio/.vs/sgtelib/v14/.suo
 VisualStudio/sgtelib.VC.db
 VisualStudio/sgtelib_predict.vcxproj.filters
+
+# gcc
+*.o
+*.so
+*.exe
+
+# CMakeLists stuff
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+.cmake
+*.cmake
+
+# vscode
+.vscode
+
+# build
+build/*.txt
+
+# ninja stuff
+*.ninja*
+*_autogen
+
+# GCC stuff
+*.a
+*_intermediate_link*
