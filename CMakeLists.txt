@@ -42,7 +42,7 @@ set(PROJECT_NAME "sgtelib")
 cmake_policy(SET CMP0048 NEW)
 project(${PROJECT_NAME} VERSION 0.1.0)
 
-set(TARGET_NAME "sgtelib_test.exe")
+set(TARGET_NAME "sgtelib")
 
 #-------------------------------------------------------------------------------
 #	COMPILE FLAGS
@@ -70,22 +70,21 @@ endif(MSVC)
 #	GENERATE EXECUTABLE
 #-------------------------------------------------------------------------------
 
-# Set additional include directories
-include_directories(${INCLUDE_DIRS})
-
 # Targets for compilation (SGTELIB library (sgtelib))
 add_library(sgtelib ${SOURCES_LIB})
 target_include_directories(sgtelib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Generate the executable
-add_executable(${TARGET_NAME} ${GUI_TYPE} ${SOURCES_MAIN})
-target_include_directories(${TARGET_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+# # Generate the executable
+# add_executable(${TARGET_NAME} ${GUI_TYPE} ${SOURCES_MAIN})
+# target_include_directories(${TARGET_NAME} PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include
+#     ${Python_INCLUDE_DIRS}
+#     ${PYBIND_INCLUDE_DIR}
+# )
 # link libraries
-target_link_libraries(${TARGET_NAME} PRIVATE sgtelib ${LIBRARIES})
+# target_link_libraries(${TARGET_NAME} PRIVATE sgtelib Python::Python ${LIBRARIES})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

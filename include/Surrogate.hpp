@@ -189,6 +189,9 @@ namespace SGTELIB {
                       const SGTELIB::Matrix & Znew  );
     bool add_point  ( const double * xnew ,
                       const double * znew  );
+    // Get data
+    int get_in_dim       (void) const {return _n;};
+    int get_out_dim       (void) const {return _m;};
 
     // exclusion_area
     SGTELIB::Matrix get_exclusion_area_penalty ( const SGTELIB::Matrix & XX , const double tc ) const;
