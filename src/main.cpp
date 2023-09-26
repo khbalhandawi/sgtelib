@@ -24,7 +24,6 @@ void count_rows(std::ifstream & file, int & rows, int & cols) {
     }
 }
 
-
 void copy_array(std::ifstream & file, int & rows, int & cols, double **doubleArray ) {
 
     std::string line;
@@ -60,7 +59,6 @@ double ** allocate_array(int & rows, int & cols) {
     }
     return doubleArray;
 }
-
 
 void free_array(int & rows, int & cols, double **doubleArray ) {
     for (int i = 0; i < rows; ++i) {
@@ -123,5 +121,7 @@ int main ( int argc , char ** argv ) {
     ZZ.set_name("ZZ");
     ZZ.display(std::cout);
 
+    SGTELIB::Matrix RMSE = S->get_metric(SGTELIB::METRIC_RMSE);
+    RMSE.display(std::cout);
     // free_array(rows, cols, doubleX);
 }

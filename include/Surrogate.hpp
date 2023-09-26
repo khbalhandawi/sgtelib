@@ -189,7 +189,8 @@ namespace SGTELIB {
                       const SGTELIB::Matrix & Znew  );
     bool add_point  ( const double * xnew ,
                       const double * znew  );
-    // Get data
+                      
+    // Get surrogate dimensions
     int get_in_dim       (void) const {return _n;};
     int get_out_dim       (void) const {return _m;};
 

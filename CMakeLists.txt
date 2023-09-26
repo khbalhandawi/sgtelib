@@ -34,6 +34,8 @@ set(SOURCES_MAIN
     src/main.cpp
 )
 
+# set(TARGET_TYPE exec)
+
 #-------------------------------------------------------------------------------
 #	PROJECT SETTINGS
 #-------------------------------------------------------------------------------
@@ -42,7 +44,12 @@ set(PROJECT_NAME "sgtelib")
 cmake_policy(SET CMP0048 NEW)
 project(${PROJECT_NAME} VERSION 0.1.0)
 
-set(TARGET_NAME "sgtelib")
+if(TARGET_TYPE STREQUAL "exec")  
+    set(TARGET_NAME "sgtelib.exe")  
+else()  
+    set(TARGET_NAME "sgtelib")  
+endif()
+
 
 #-------------------------------------------------------------------------------
 #	COMPILE FLAGS
@@ -76,15 +83,15 @@ target_include_directories(sgtelib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# # Generate the executable
-# add_executable(${TARGET_NAME} ${GUI_TYPE} ${SOURCES_MAIN})
-# target_include_directories(${TARGET_NAME} PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include
-#     ${Python_INCLUDE_DIRS}
-#     ${PYBIND_INCLUDE_DIR}
-# )
-# link libraries
-# target_link_libraries(${TARGET_NAME} PRIVATE sgtelib Python::Python ${LIBRARIES})
+if(TARGET_TYPE STREQUAL "exec") 
+    # Generate the executable
+    add_executable(${TARGET_NAME} ${GUI_TYPE} ${SOURCES_MAIN})
+    target_include_directories(${TARGET_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    # link libraries
+    target_link_libraries(${TARGET_NAME} PRIVATE sgtelib ${LIBRARIES})
+endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
