@@ -36,7 +36,6 @@ SGTELIB::Surrogate_Parameters::Surrogate_Parameters ( const model_t mt ):
   check();
 }//
 
-
 /*-----------------------------------------------------------------------*/
 /*          constructor                                                  */
 /* Use a string provided by the user. Read the model_type in the string, */
@@ -46,6 +45,18 @@ SGTELIB::Surrogate_Parameters::Surrogate_Parameters ( const std::string & s ):
   _type  ( read_model_type(s) ){
   set_defaults();
   read_string(s);
+  check();
+}//
+
+/*---------------------------------------------------------------*/
+/*         constructor                                           */
+/* Use a model_type to define the model, then use the map values */
+/* associated to this specific model_type.                       */
+/*---------------------------------------------------------------*/
+SGTELIB::Surrogate_Parameters::Surrogate_Parameters ( const std::map<std::string, std::string> & m ):
+  _type  ( read_model_type(m) ){
+  set_defaults();
+  read_map(m);
   check();
 }//
 
@@ -77,6 +88,22 @@ SGTELIB::model_t SGTELIB::Surrogate_Parameters::read_model_type ( const std::str
   std::cout << "model_description: " << model_description << "\n";
   throw SGTELIB::Exception ( __FILE__ , __LINE__ , "No field \"TYPE\" found.");
 }//
+
+/*----------------------------------------*/
+/*   Extract the model type from a map */            
+/*----------------------------------------*/
+SGTELIB::model_t SGTELIB::Surrogate_Parameters::read_model_type (const std::map<std::string, std::string>& model_description) {  
+  auto it = model_description.find("TYPE");  
+  if (it != model_description.end()) {  
+    std::string s = SGTELIB::toupper(it->second);  
+    return SGTELIB::str_to_model_type(s);  
+  }  
+  // If nothing was found  
+  for (const auto& kv : model_description) {  
+    std::cout << kv.first << ": " << kv.second << "\n";  
+  }  
+  throw SGTELIB::Exception ( __FILE__ , __LINE__ , "No field \"TYPE\" found.");  
+}
 
 /*--------------------------------------------------------------------*/
 /* Convert the param name provided by user into a standard param name */
@@ -280,6 +307,130 @@ void SGTELIB::Surrogate_Parameters::read_string (const std::string & model_descr
   }// end while read
 }//
 
+
+void SGTELIB::Surrogate_Parameters::read_map (const std::map<std::string, std::string>& model_description){  
+  std::string field;  
+  std::string content;  
+  bool content_is_optim;  
+  const bool display = false;  
+  
+  for(const auto& pair : model_description){  
+    field = pair.first;  
+    content = pair.second;  
+  
+    if (display){  
+      std::cout << "FIELD: " << field ;  
+    }  
+    // Convert the field name into a std field name  
+    field = to_standard_field_name(field);  
+    if (display){  
+      std::cout << " (" << field << ")\n";  
+    }     
+    // Check if this field is authorized for this type of model.  
+    if ( ! authorized_field(field) ){  
+      throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unauthorized field \""+field+"\" in a model of type "+model_type_to_str(_type) );  
+    }  
+    if (display){  
+      std::cout << "CONTENT: " << content << "\n";  
+    }  
+    // Detect if the content is "OPTIM".  
+    content_is_optim = ( streqi(content,"OPTIM") || streqi(content,"OPTIMIZATION") || streqi(content,"OPTIMIZE") );  
+    if (display){  
+      std::cout << "CONTENT IS OPTIM: " << content_is_optim << "\n";  
+    }  
+  
+    // Check if optimization is allowed for this field.  
+    if ((content_is_optim) && (!authorized_optim(field))) {  
+      throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Field \""+field+"\" cannot be optimized." );  
+    }  
+  
+    if (streqi(field,"TYPE")){
+      // If the field is "TYPE", then check that the model_type is consistent with the
+      // one already detected.
+      if ( str_to_model_type(content) != _type ){
+        throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unconsistent model type!" );
+      }
+    }
+    else if (streqi(field,"DEGREE")){
+      if (content_is_optim)
+        // _degree = default value.
+        _degree_status = SGTELIB::STATUS_OPTIM;
+      else{
+        _degree = SGTELIB::stoi(content);
+        _degree_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if (streqi(field,"KERNEL_TYPE")){
+      if (content_is_optim)
+        // _kernel_type = default value        
+        _kernel_type_status = SGTELIB::STATUS_OPTIM;
+      else{
+        _kernel_type = SGTELIB::str_to_kernel_type(content);
+        _kernel_type_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if ( streqi(field,"KERNEL_COEF") ){
+      if (content_is_optim)
+        // _kernel_coef = default value
+        _kernel_coef_status = SGTELIB::STATUS_OPTIM;
+      else{
+        _kernel_coef = SGTELIB::stod(content);
+        _kernel_coef_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if (streqi(field,"RIDGE")){
+      if (content_is_optim)
+        // _ridge = default value
+        _ridge_status = SGTELIB::STATUS_OPTIM;
+      else{
+        _ridge = SGTELIB::stod(content);
+        _ridge_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if ( streqi(field,"DISTANCE_TYPE") ){
+      if (content_is_optim)
+        // _distance_type = default value
+        _distance_type_status = SGTELIB::STATUS_OPTIM;
+      else{
+        _distance_type = str_to_distance_type(content);
+        _distance_type_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if ( streqi(field,"WEIGHT_TYPE") ){
+      _weight_type = str_to_weight_type(content);
+      if (content_is_optim) 
+        _weight_status = SGTELIB::STATUS_OPTIM;
+      // Note, the weight_type can be one of the following:
+      // - WTA1
+      // - WTA3
+      // - SELECT
+      // - OPTIM
+      // If the weight_type is OPTIM, then weight_status is OPTIM.
+      // The variable weight_type is not optimized. It is the weights that are
+      // optimized.
+      // This is different from, for example, the kernel_type, which can be optimized.
+    }
+    else if ( streqi(field,"METRIC_TYPE") ){
+      _metric_type = str_to_metric_type(content);
+      // Cannot be optimized
+    }
+    else if ( streqi(field,"BUDGET") ){
+      _budget = SGTELIB::stoi(content);
+      // Cannot be optimized
+    }
+    else if ( streqi(field,"PRESET") ){
+      _preset = content;
+      // Cannot be optimized
+    }
+    else if ( streqi(field,"OUTPUT") ){
+      _output = content;
+      // Cannot be optimized
+    }
+    else{
+      throw SGTELIB::Exception ( __FILE__ , __LINE__ , "Field not recognized: \""+field+"\"" );
+    }
+  }  
+}  
 
 /*----------------------------------------------------------*/
 /* Indicate if the field name given in input is authorized  */

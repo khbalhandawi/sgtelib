@@ -54,16 +54,64 @@ SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
     TS.info();
   #endif
 
-  SGTELIB::Surrogate * S;
   SGTELIB::Surrogate_Parameters p ( s );
-  
+  SGTELIB::Surrogate * S = Surrogate_Constructor(TS,p);
 
+  #ifdef SGTELIB_DEBUG
+    std::cout << "SGTELIB::Surrogate_Factory (TS,p) AFTER set param\n";
+    std::cout << "TS.info()\n";
+    TS.info();
+    std::cout << "S->info()\n";
+    S->info();
+    std::cout << "SGTELIB::Surrogate_Factory (TS,p) RETURN\n";
+  #endif
+
+  return S;
+
+}//
+
+
+
+
+
+/*----------------------------------------------------------*/
+SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
+                                                  const std::map<std::string,std::string> & m ) {
+/*----------------------------------------------------------*/
+
+  #ifdef SGTELIB_DEBUG
+    std::cout << "SGTELIB::Surrogate_Factory (TS,m) begin\n";
+    TS.info();
+  #endif
+
+  SGTELIB::Surrogate_Parameters p ( m );
+  SGTELIB::Surrogate * S = Surrogate_Constructor(TS,p);
+
+  #ifdef SGTELIB_DEBUG
+    std::cout << "SGTELIB::Surrogate_Factory (TS,m) AFTER set param\n";
+    std::cout << "TS.info()\n";
+    TS.info();
+    std::cout << "S->info()\n";
+    S->info();
+    std::cout << "SGTELIB::Surrogate_Factory (TS,m) RETURN\n";
+  #endif
+
+  return S;
+
+}//
+
+
+/*----------------------------------------------------------*/
+SGTELIB::Surrogate * SGTELIB::Surrogate_Constructor ( SGTELIB::TrainingSet & TS,
+                                                      SGTELIB::Surrogate_Parameters & p) {
+/*----------------------------------------------------------*/
+  SGTELIB::Surrogate * S;
 
   switch ( p.get_type() ) {
 
   case SGTELIB::SVN: 
     throw SGTELIB::Exception ( __FILE__ , __LINE__ ,
-      "Surrogate_Factory: not implemented yet! \""+s+"\"" );
+      "Surrogate_Factory: not implemented yet!" );
 
   case SGTELIB::PRS: 
     S = new Surrogate_PRS(TS,p);
@@ -105,19 +153,9 @@ SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
     throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Undefined type" );
   }
 
-
-  #ifdef SGTELIB_DEBUG
-    std::cout << "SGTELIB::Surrogate_Factory (TS,p) AFTER set param\n";
-    std::cout << "TS.info()\n";
-    TS.info();
-    std::cout << "S->info()\n";
-    S->info();
-    std::cout << "SGTELIB::Surrogate_Factory (TS,p) RETURN\n";
-  #endif
   return S;
 
-}//
-
+}
 
 /*----------------------------------------------------------*/
 void SGTELIB::surrogate_delete ( SGTELIB::Surrogate * S ){

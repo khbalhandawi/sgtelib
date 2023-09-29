@@ -44,9 +44,15 @@ namespace SGTELIB {
 DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::TrainingSet    & C,
                                          const std::string & s );
 
+DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::TrainingSet    & C,
+                                         const std::map<std::string,std::string> & m );
+
 DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::Matrix & X0,
                                          SGTELIB::Matrix & Z0,
                                          const std::string & s );
+
+SGTELIB::Surrogate * Surrogate_Constructor ( SGTELIB::TrainingSet & C,
+                                             SGTELIB::Surrogate_Parameters & p);
 
 DLL_API void surrogate_delete ( SGTELIB::Surrogate * S );
 
