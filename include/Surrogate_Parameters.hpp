@@ -34,7 +34,14 @@
 #include <string>
 
 namespace SGTELIB {
-
+  typedef std::variant<std::string, 
+                       model_t,
+                       weight_t,
+                       kernel_t,
+                       distance_t,
+                       metric_t,
+                       double,
+                       int> ParameterTypes;  
   /*--------------------------------------*/
   /*         Surrogate_Parameters class        */
   /*--------------------------------------*/
@@ -84,7 +91,7 @@ namespace SGTELIB {
     // Constructors
     explicit Surrogate_Parameters ( const model_t mt);
     explicit Surrogate_Parameters ( const std::string & s);
-    explicit Surrogate_Parameters ( const std::map<std::string, std::string> & p );
+    explicit Surrogate_Parameters ( const std::map<std::string, ParameterTypes> & p );
     //Surrogate_Parameters ( const SGTELIB::Surrogate_Parameters & p );
 
     // Defaults
@@ -94,9 +101,10 @@ namespace SGTELIB {
     bool authorized_field  (const std::string & field) const;
     static bool authorized_optim  (const std::string & field);
     void read_string (const std::string & model_description);
-    void read_map (const std::map<std::string, std::string>& model_description);
+    void read_map (const std::map<std::string, ParameterTypes>& model_description);
     static SGTELIB::model_t read_model_type ( const std::string & model_description);
-    static SGTELIB::model_t read_model_type (const std::map<std::string, std::string>& model_description); 
+    static SGTELIB::model_t read_model_type ( const std::map<std::string, ParameterTypes>& model_description); 
+    
     static std::string to_standard_field_name (const std::string& field);
 
     // Check    

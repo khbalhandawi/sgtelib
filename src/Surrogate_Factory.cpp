@@ -76,7 +76,7 @@ SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
 
 /*----------------------------------------------------------*/
 SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
-                                                  const std::map<std::string,std::string> & m ) {
+                                                  const std::map<std::string,ParameterTypes> & m ) {
 /*----------------------------------------------------------*/
 
   #ifdef SGTELIB_DEBUG

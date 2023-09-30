@@ -45,7 +45,7 @@ DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::TrainingSet    & C,
                                          const std::string & s );
 
 DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::TrainingSet    & C,
-                                         const std::map<std::string,std::string> & m );
+                                         const std::map<std::string,ParameterTypes> & m );
 
 DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::Matrix & X0,
                                          SGTELIB::Matrix & Z0,
