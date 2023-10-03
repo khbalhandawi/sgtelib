@@ -130,5 +130,38 @@ int main ( int argc , char ** argv ) {
 
     SGTELIB::Matrix RMSE = S->get_metric(SGTELIB::METRIC_RMSE);
     RMSE.display(std::cout);
+
+
+    // test ensemble models
+    std::map<std::string, SGTELIB::ParameterTypes> model_e = {
+        {"TYPE", SGTELIB::ENSEMBLE},
+        {"WEIGHT", "OPTIM"},
+        {"BUDGET", 500},
+        {"METRIC", SGTELIB::METRIC_OECV}
+    };
+
+    SGTELIB::Surrogate * S_Ensemble = Surrogate_Factory(TS,model_e);
+    S_Ensemble->model_list_display(std::cout);
+    S_Ensemble->model_list_preset("PRS");
+    S_Ensemble->model_list_display(std::cout);
+
+
+
+    S_Ensemble->build();
+    S_Ensemble->predict(XX,&ZZ);
+    double E = S_Ensemble->get_metric(SGTELIB::METRIC_OECV,0);
+
+    SGTELIB::Surrogate_Parameters p = S_Ensemble->get_param();
+    p.get_weight();
+
+    S_Ensemble->optimize_parameters();
+
+    SGTELIB::Surrogate_Parameters p_opt = S_Ensemble->get_param();
+    p_opt.get_weight();
+
+
     // free_array(rows, cols, doubleX);
+
+
+
 }

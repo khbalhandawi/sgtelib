@@ -1606,10 +1606,25 @@ double SGTELIB::Surrogate::eval_objective ( void ){
 }//
 
 
-
-
-
-
-
-
-
+/*--------------------------------------*/
+/*   Abstract ensemble model functions  */
+/*                                      */
+/*--------------------------------------*/
+void SGTELIB::Surrogate::model_list_display(std::ostream & out) {   
+    // Default implementation
+}  
+void SGTELIB::Surrogate::model_list_preset(const std::string & preset) {  
+    // Default implementation
+}  
+void SGTELIB::Surrogate::model_list_remove_all() {  
+    // Default implementation
+}  
+void SGTELIB::Surrogate::model_list_add(const std::string & definition) {  
+    // Default implementation
+}  
+void SGTELIB::Surrogate::model_list_add(const std::map<std::string, ParameterTypes> definition) {  
+    // Default implementation
+}  
+void SGTELIB::Surrogate::model_list_add(Surrogate * S) {  
+    // Default implementation
+}  

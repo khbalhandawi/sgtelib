@@ -213,6 +213,14 @@ namespace SGTELIB {
     bool optimize_parameters ( void );
     double eval_objective ( void );
 
+    // Ensemble functionality
+    virtual void model_list_display(std::ostream & out);
+    virtual void model_list_preset(const std::string & preset);
+    virtual void model_list_remove_all();
+    virtual void model_list_add(const std::string & definition);
+    virtual void model_list_add(const std::map<std::string, ParameterTypes> definition);
+    virtual void model_list_add(Surrogate * S);
+
   };
 }
 

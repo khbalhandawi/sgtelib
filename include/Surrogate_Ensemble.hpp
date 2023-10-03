@@ -61,6 +61,9 @@ namespace SGTELIB {
                     // ie: the weight in k is non null for at least one output
     double * _metric; // Value of the metric for the Ensemble
 
+    // Update W dimensions
+    void update_W_dims ( void );
+
     // build model (private):
     virtual bool build_private (void) override;
     virtual bool init_private  (void) override;
@@ -120,11 +123,12 @@ namespace SGTELIB {
     // ==============================================//
     // Method to define the model_list //
     // ==============================================//
-    void model_list_display        ( std::ostream & out );
-    void model_list_preset         ( const std::string & preset );
-    void model_list_remove_all ( void );
-    void model_list_add ( const std::string & definition );
-
+    void model_list_display        ( std::ostream & out ) override;
+    void model_list_preset         ( const std::string & preset ) override;
+    void model_list_remove_all ( void ) override;
+    void model_list_add ( const std::string & definition ) override;
+    void model_list_add ( const std::map<std::string,ParameterTypes> definition) override;
+    void model_list_add ( Surrogate * S) override;
   };
 }
 

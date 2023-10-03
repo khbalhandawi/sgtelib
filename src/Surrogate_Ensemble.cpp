@@ -41,10 +41,6 @@ SGTELIB::Surrogate_Ensemble::Surrogate_Ensemble ( SGTELIB::TrainingSet & trainin
   #endif
   // Init Model list
   model_list_preset(_param.get_preset());
-  // Init the weight matrix in _param
-  SGTELIB::Matrix W ("W",_kmax,_m);
-  W.fill(1.0/double(_kmax));
-  _param.set_weight(W);
 }
 
 
@@ -170,8 +166,20 @@ void SGTELIB::Surrogate_Ensemble::model_list_remove_all ( void ){
 void SGTELIB::Surrogate_Ensemble::model_list_add ( const std::string & definition ){
   _surrogates.push_back( SGTELIB::Surrogate_Factory(_trainingset,definition) );
   _kmax++;
+  update_W_dims();
 }//
 
+void SGTELIB::Surrogate_Ensemble::model_list_add ( const std::map<std::string,SGTELIB::ParameterTypes> definition){
+  _surrogates.push_back( SGTELIB::Surrogate_Factory(_trainingset,definition) );
+  _kmax++;
+  update_W_dims();
+}
+
+void SGTELIB::Surrogate_Ensemble::model_list_add ( SGTELIB::Surrogate * S){
+  _surrogates.push_back( S );
+  _kmax++;
+  update_W_dims();
+}
 
 /*--------------------------------------*/
 /*             init_private             */
@@ -1059,3 +1067,12 @@ void SGTELIB::Surrogate_Ensemble::model_list_preset ( const std::string & preset
 }//
 
 
+/*--------------------------------------*/
+/*    Update weight matrix dimensions   */
+/*--------------------------------------*/
+void SGTELIB::Surrogate_Ensemble::update_W_dims ( void ) {
+  // Update weight matrix of _param
+  SGTELIB::Matrix W ("W",_kmax,_m);
+  W.fill(1.0/double(_kmax));
+  _param.set_weight(W);
+}
