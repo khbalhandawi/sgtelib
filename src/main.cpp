@@ -3,6 +3,7 @@
 #include "Surrogate_Utils.hpp"
 #include <fstream>
 #include <string>
+#include <unistd.h>  
 using namespace SGTELIB;
 
 
@@ -80,7 +81,7 @@ int main ( int argc , char ** argv ) {
 
     rows = 0;
     cols = 0;
-    file.open("X.txt");
+    file.open("../../sgtelib/test_data/X.txt");
 
     count_rows(file, rows, cols);
     double** doubleX = allocate_array(rows,cols); // create new double array
@@ -91,7 +92,7 @@ int main ( int argc , char ** argv ) {
     
     rows = 0;
     cols = 0;
-    file.open("Z.txt");
+    file.open("../../sgtelib/test_data/X.txt");
 
     count_rows(file, rows, cols);
     double** doubleZ = allocate_array(rows,cols); // create new double array
@@ -102,7 +103,7 @@ int main ( int argc , char ** argv ) {
 
     rows = 0;
     cols = 0;
-    file.open("XX.txt");
+    file.open("../../sgtelib/test_data/X.txt");
 
     count_rows(file, rows, cols);
     double** doubleXX = allocate_array(rows,cols); // create new double array
@@ -111,11 +112,17 @@ int main ( int argc , char ** argv ) {
 
     file.close();
 
-    std::string model = "TYPE PRS DEGREE 2";    
+    // std::string model = "TYPE PRS DEGREE OPTIM RIDGE OPTIM METRIC OECV";
+    std::map<std::string, SGTELIB::ParameterTypes> model = {
+        {"TYPE", SGTELIB::PRS},
+        {"DEGREE", "OPTIM"},
+        {"RIDGE", "OPTIM"},
+        {"METRIC", SGTELIB::METRIC_OECV}
+    };
 
     SGTELIB::TrainingSet TS(X,Z);
     SGTELIB::Surrogate * S = Surrogate_Factory(TS,model);
-    S->build();
+    S->build(true);
     ZZ = SGTELIB::Matrix("ZZ",XX.get_nb_rows(),Z.get_nb_cols());
     S->predict(XX,&ZZ);
     ZZ.set_name("ZZ");

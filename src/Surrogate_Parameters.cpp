@@ -322,184 +322,188 @@ void SGTELIB::Surrogate_Parameters::read_string (const std::string & model_descr
 void SGTELIB::Surrogate_Parameters::read_map (const std::map<std::string, ParameterTypes>& model_description){  
   std::string field;  
   ParameterTypes content;  
-  bool content_is_optim;  
+  
   const bool display = false;  
-  
-  for(const auto& pair : model_description){  
-    field = pair.first;  
-    content = pair.second;  
-  
-    // Lambda function to handle each type in the variant  
-    auto handle_content = [&](auto&& arg) { 
-      using T = std::decay_t<decltype(arg)>; 
 
-      if (display){  
-        std::cout << "FIELD: " << field ;  
+  // Lambda function to handle each type in the variant  
+  auto handle_content = [&](auto&& arg) { 
+    using T = std::decay_t<decltype(arg)>; 
+    bool content_is_optim = false;  
+
+    if (display){  
+      std::cout << "FIELD: " << field ;  
+    }  
+    // Convert the field name into a std field name  
+    field = to_standard_field_name(field);  
+    if (display){  
+      std::cout << " (" << field << ")\n";  
+    }     
+    // Check if this field is authorized for this type of model.  
+    if ( ! authorized_field(field) ){  
+      throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unauthorized field \""+field+"\" in a model of type "+model_type_to_str(_type) );  
+    }  
+    
+    if constexpr (std::is_same<T, std::string>::value) {
+      if constexpr ((display) && (std::is_same_v<T, std::string>)){  
+        std::cout << "CONTENT: " << arg << "\n";  
       }  
-      // Convert the field name into a std field name  
-      field = to_standard_field_name(field);  
+      // Detect if the content is "OPTIM".  
+      content_is_optim = ( streqi(arg,"OPTIM") || streqi(arg,"OPTIMIZATION") || streqi(arg,"OPTIMIZE") );  
       if (display){  
-        std::cout << " (" << field << ")\n";  
-      }     
-      // Check if this field is authorized for this type of model.  
-      if ( ! authorized_field(field) ){  
-        throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unauthorized field \""+field+"\" in a model of type "+model_type_to_str(_type) );  
-      }  
-      
+        std::cout << "CONTENT IS OPTIM: " << content_is_optim << "\n";  
+      }
+    }
+  
+    // Check if optimization is allowed for this field.  
+    if ((content_is_optim) && (!authorized_optim(field))) {  
+      throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Field \""+field+"\" cannot be optimized." );  
+    }  
+  
+    if (streqi(field,"TYPE")){
+      // If the field is "TYPE", then check that the model_type is consistent with the
+      // one already detected.
       if constexpr (std::is_same_v<T, std::string>) {
-        if constexpr ((display) && (std::is_same_v<T, std::string>)){  
-          std::cout << "CONTENT: " << arg << "\n";  
-        }  
-        // Detect if the content is "OPTIM".  
-        content_is_optim = ( streqi(arg,"OPTIM") || streqi(arg,"OPTIMIZATION") || streqi(arg,"OPTIMIZE") );  
-        if (display){  
-          std::cout << "CONTENT IS OPTIM: " << content_is_optim << "\n";  
+        if ( str_to_model_type(arg) != _type ){
+          throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unconsistent model type!" );
         }
       }
-    
-      // Check if optimization is allowed for this field.  
-      if ((content_is_optim) && (!authorized_optim(field))) {  
-        throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Field \""+field+"\" cannot be optimized." );  
-      }  
-    
-      if (streqi(field,"TYPE")){
-        // If the field is "TYPE", then check that the model_type is consistent with the
-        // one already detected.
+      else if constexpr (std::is_same_v<T, model_t>) {
+        if ( arg != _type ){
+          throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unconsistent model type!" );
+        }
+      }
+    }
+    else if (streqi(field,"DEGREE")){
+      if (content_is_optim)
+        // _degree = default value.
+        _degree_status = SGTELIB::STATUS_OPTIM;
+      else{
         if constexpr (std::is_same_v<T, std::string>) {
-          if ( str_to_model_type(arg) != _type ){
-            throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unconsistent model type!" );
-          }
+          _degree = SGTELIB::stoi(arg);
+        } 
+        else if constexpr (std::is_same_v<T, int>) {
+          _degree = arg;
         }
-        else if (std::is_same_v<T, model_t>) {
-          if ( arg != _type ){
-            throw SGTELIB::Exception ( __FILE__ , __LINE__ ,"Unconsistent model type!" );
-          }
-        }
+        _degree_status = SGTELIB::STATUS_FIXED;
       }
-      else if (streqi(field,"DEGREE")){
-        if (content_is_optim)
-          // _degree = default value.
-          _degree_status = SGTELIB::STATUS_OPTIM;
-        else{
-          if constexpr (std::is_same_v<T, std::string>) {
-            _degree = SGTELIB::stoi(arg);
-          } 
-          else if (std::is_same_v<T, int>) {
-            _degree = arg;
-          }
-          _degree_status = SGTELIB::STATUS_FIXED;
-        }
-      }
-      else if (streqi(field,"KERNEL_TYPE")){
-        if (content_is_optim)
-          // _kernel_type = default value        
-          _kernel_type_status = SGTELIB::STATUS_OPTIM;
+    }
+    else if (streqi(field,"KERNEL_TYPE")){
+      if (content_is_optim)
+        // _kernel_type = default value        
+        _kernel_type_status = SGTELIB::STATUS_OPTIM;
         else{
           if constexpr (std::is_same_v<T, std::string>) {
             _kernel_type = SGTELIB::str_to_kernel_type(arg);
           } 
-          else if (std::is_same_v<T, kernel_t>) {
+          else if constexpr (std::is_same_v<T, kernel_t>) {
             _kernel_type = arg;
           }
           _kernel_type_status = SGTELIB::STATUS_FIXED;
         }
-      }
-      else if ( streqi(field,"KERNEL_COEF") ){
-        if (content_is_optim)
-          // _kernel_coef = default value
-          _kernel_coef_status = SGTELIB::STATUS_OPTIM;
-        else{
-          if constexpr (std::is_same_v<T, std::string>) {
-            _kernel_coef = SGTELIB::stod(arg);
-          } 
-          else if (std::is_same_v<T, double>) {
-            _kernel_coef = arg;
-          }
-          _kernel_coef_status = SGTELIB::STATUS_FIXED;
-        }
-      }
-      else if (streqi(field,"RIDGE")){
-        if (content_is_optim)
-          // _ridge = default value
-          _ridge_status = SGTELIB::STATUS_OPTIM;
-        else{
-          if constexpr (std::is_same_v<T, std::string>) {
-            _ridge = SGTELIB::stod(arg);
-          } 
-          else if (std::is_same_v<T, double>) {
-            _ridge = arg;
-          }
-          _ridge_status = SGTELIB::STATUS_FIXED;
-        }
-      }
-      else if ( streqi(field,"DISTANCE_TYPE") ){
-        if (content_is_optim)
-          // _distance_type = default value
-          _distance_type_status = SGTELIB::STATUS_OPTIM;
-        else{
-          if constexpr (std::is_same_v<T, std::string>) {
-            _distance_type = str_to_distance_type(arg);
-          } 
-          else if (std::is_same_v<T, distance_t>) {
-            _distance_type = arg;
-          }
-          _distance_type_status = SGTELIB::STATUS_FIXED;
-        }
-      }
-      else if ( streqi(field,"WEIGHT_TYPE") ){
-        if constexpr (std::is_same_v<T, std::string>) {
-          _weight_type = str_to_weight_type(arg);
-        } 
-        else if (std::is_same_v<T, weight_t>) {
-          _weight_type = arg;
-        }
-        if (content_is_optim) 
-          _weight_status = SGTELIB::STATUS_OPTIM;
-        // Note, the weight_type can be one of the following:
-        // - WTA1
-        // - WTA3
-        // - SELECT
-        // - OPTIM
-        // If the weight_type is OPTIM, then weight_status is OPTIM.
-        // The variable weight_type is not optimized. It is the weights that are
-        // optimized.
-        // This is different from, for example, the kernel_type, which can be optimized.
-      }
-      else if ( streqi(field,"METRIC_TYPE") ){
-        if constexpr (std::is_same_v<T, std::string>) {
-          _metric_type = str_to_metric_type(arg);
-        } 
-        else if (std::is_same_v<T, metric_t>) {
-          _metric_type = arg;
-        }
-        // Cannot be optimized
-      }
-      else if ( streqi(field,"BUDGET") ){
-        if constexpr (std::is_same_v<T, std::string>) {
-          _budget = SGTELIB::stoi(arg);
-        } 
-        else if (std::is_same_v<T, int>) {
-          _budget = arg;
-        }
-        // Cannot be optimized
-      }
-      else if ( streqi(field,"PRESET") ){
-        if constexpr (std::is_same_v<T, std::string>) {
-          _preset = arg;
-        }
-        // Cannot be optimized
-      }
-      else if ( streqi(field,"OUTPUT") ){
-        if constexpr (std::is_same_v<T, std::string>) {
-          _output = arg;
-        }
-        // Cannot be optimized
-      }
+    }
+    else if ( streqi(field,"KERNEL_COEF") ){
+      if (content_is_optim)
+        // _kernel_coef = default value
+        _kernel_coef_status = SGTELIB::STATUS_OPTIM;
       else{
-        throw SGTELIB::Exception ( __FILE__ , __LINE__ , "Field not recognized: \""+field+"\"" );
+        if constexpr (std::is_same_v<T, std::string>) {
+          _kernel_coef = SGTELIB::stod(arg);
+        } 
+        else if constexpr (std::is_same_v<T, double>) {
+          _kernel_coef = arg;
+        }
+        _kernel_coef_status = SGTELIB::STATUS_FIXED;
       }
-    };
-  }  
+    }
+    else if (streqi(field,"RIDGE")){
+      if (content_is_optim)
+        // _ridge = default value
+        _ridge_status = SGTELIB::STATUS_OPTIM;
+      else{
+        if constexpr (std::is_same_v<T, std::string>) {
+          _ridge = SGTELIB::stod(arg);
+        } 
+        else if constexpr (std::is_same_v<T, double>) {
+          _ridge = arg;
+        }
+        _ridge_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if ( streqi(field,"DISTANCE_TYPE") ){
+      if (content_is_optim)
+        // _distance_type = default value
+        _distance_type_status = SGTELIB::STATUS_OPTIM;
+      else{
+        if constexpr (std::is_same_v<T, std::string>) {
+          _distance_type = str_to_distance_type(arg);
+        } 
+        else if constexpr (std::is_same_v<T, distance_t>) {
+          _distance_type = arg;
+        }
+        _distance_type_status = SGTELIB::STATUS_FIXED;
+      }
+    }
+    else if ( streqi(field,"WEIGHT_TYPE") ){
+      if constexpr (std::is_same_v<T, std::string>) {
+        _weight_type = str_to_weight_type(arg);
+      } 
+      else if constexpr (std::is_same_v<T, weight_t>) {
+        _weight_type = arg;
+      }
+      if (content_is_optim) 
+        _weight_status = SGTELIB::STATUS_OPTIM;
+      // Note, the weight_type can be one of the following:
+      // - WTA1
+      // - WTA3
+      // - SELECT
+      // - OPTIM
+      // If the weight_type is OPTIM, then weight_status is OPTIM.
+      // The variable weight_type is not optimized. It is the weights that are
+      // optimized.
+      // This is different from, for example, the kernel_type, which can be optimized.
+    }
+    else if ( streqi(field,"METRIC_TYPE") ){
+      if constexpr (std::is_same_v<T, std::string>) {
+        _metric_type = str_to_metric_type(arg);
+      } 
+      else if constexpr (std::is_same_v<T, metric_t>) {
+        _metric_type = arg;
+      }
+      // Cannot be optimized
+    }
+    else if ( streqi(field,"BUDGET") ){
+      if constexpr (std::is_same_v<T, std::string>) {
+        _budget = SGTELIB::stoi(arg);
+      } 
+      else if constexpr (std::is_same_v<T, int>) {
+        _budget = arg;
+      }
+      // Cannot be optimized
+    }
+    else if ( streqi(field,"PRESET") ){
+      if constexpr (std::is_same_v<T, std::string>) {
+        _preset = arg;
+      }
+      // Cannot be optimized
+    }
+    else if ( streqi(field,"OUTPUT") ){
+      if constexpr (std::is_same_v<T, std::string>) {
+        _output = arg;
+      }
+      // Cannot be optimized
+    }
+    else{
+      throw SGTELIB::Exception ( __FILE__ , __LINE__ , "Field not recognized: \""+field+"\"" );
+    }
+  };
+
+  for(const auto& pair : model_description){  
+    field = pair.first;  
+    content = pair.second;  
+  
+    // Use the visitor on the variant  
+    std::visit(handle_content, content); 
+  }
 }  
 
 /*----------------------------------------------------------*/

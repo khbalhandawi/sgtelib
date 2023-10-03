@@ -4,6 +4,9 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
+# set(TARGET_TYPE exec)
+# set(ENABLE_TEST ON)
+
 #-------------------------------------------------------------------------------
 #	SOURCE CODE AND USER SETTINGS
 #-------------------------------------------------------------------------------
@@ -25,7 +28,6 @@ set(SOURCES_LIB
     src/Kernel.cpp
     src/Surrogate_Utils.cpp
     src/Surrogate_Factory.cpp
-    src/Tests.cpp
     src/sgtelib_help.cpp
     src/Metrics.cpp
 )
@@ -34,7 +36,16 @@ set(SOURCES_MAIN
     src/main.cpp
 )
 
-# set(TARGET_TYPE exec)
+# Google Test
+if(ENABLE_TEST)
+    enable_testing() # This enables testing.  
+    add_subdirectory(googletest) # This is the path to the Google Test source that you've downloaded.  
+endif()
+
+# Add your test files 
+set(TEST_SRC 
+    src/Tests.cpp
+)
 
 #-------------------------------------------------------------------------------
 #	PROJECT SETTINGS
@@ -91,6 +102,18 @@ if(TARGET_TYPE STREQUAL "exec")
     )
     # link libraries
     target_link_libraries(${TARGET_NAME} PRIVATE sgtelib ${LIBRARIES})
+endif()
+
+# Include Google Test headers
+if(ENABLE_TEST) 
+    add_executable(runTests.exe ${TEST_SRC})  
+    target_include_directories(runTests.exe PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include 
+        ${gtest_SOURCE_DIR}/include 
+        ${gtest_SOURCE_DIR}
+    )  
+    # Link Google Test and your library to the test executable  
+    target_link_libraries(runTests.exe gtest gtest_main sgtelib)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

@@ -166,7 +166,7 @@ namespace SGTELIB {
     bool is_defined(const SGTELIB::metric_t mt, const int j);
 
     // construct:
-    bool build (void);
+    bool build (bool optimize = false);
 
     // predict:
     void predict ( const SGTELIB::Matrix & XX ,

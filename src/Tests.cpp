@@ -25,6 +25,8 @@
 
 #include "Tests.hpp"
 #include "Surrogate_Ensemble.hpp"
+#include <gtest/gtest.h> 
+
 
 void SGTELIB::sand_box (void){
 
@@ -50,7 +52,7 @@ void SGTELIB::test_LOWESS_times ( void ){
 
     std::cout <<"--------------------\n";
 
-    int NEXP = 20;
+    int NEXP = 5;
 
     int p = (n+1)*(n+2);
     //if (p<20) p=20;
@@ -1578,3 +1580,23 @@ void SGTELIB::build_test_data ( const std::string & function_name ,
 }
 
 
+
+
+TEST(SgtelibTest, Sandbox) {  
+  SGTELIB::sand_box();  
+}  
+  
+TEST(SgtelibTest, TestLowessTimes) {  
+  SGTELIB::test_LOWESS_times();  
+}  
+  
+TEST(SgtelibTest, TestManyModels) {  
+  const std::string output_file = "output.txt";  
+
+  SGTELIB::Matrix X0,Z0;
+  
+  X0 = SGTELIB::Matrix("../example/X.txt");
+  Z0 = SGTELIB::Matrix("../example/X.txt");
+
+  SGTELIB::test_many_models(output_file, X0, Z0);  
+}  

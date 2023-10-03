@@ -183,7 +183,7 @@ void SGTELIB::Surrogate::reset_metrics ( void ) {
 /*--------------------------------------*/
 /*               build                  */
 /*--------------------------------------*/
-bool SGTELIB::Surrogate::build ( void ) {
+bool SGTELIB::Surrogate::build ( bool optimize ) {
 
   #ifdef SGTELIB_DEBUG
     std::cout << "Surrogate build - BEGIN\n";
@@ -256,7 +256,7 @@ bool SGTELIB::Surrogate::build ( void ) {
 
 
   // Optimize parameters
-  if (_param.get_nb_parameter_optimization()>0){
+  if (_param.get_nb_parameter_optimization()>0 && optimize){
     ok = optimize_parameters();
     if ( ! ok ){
       _ready = false;

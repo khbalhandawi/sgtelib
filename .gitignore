@@ -33,7 +33,7 @@ _deps
 .vscode
 
 # build
-build/*.txt
+build
 
 # ninja stuff
 *.ninja*
@@ -42,3 +42,4 @@ build/*.txt
 # GCC stuff
 *.a
 *_intermediate_link*
+*.pc
