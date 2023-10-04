@@ -51,6 +51,9 @@ DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::Matrix & X0,
                                          SGTELIB::Matrix & Z0,
                                          const std::string & s );
 
+DLL_API SGTELIB::Surrogate * Surrogate_Factory ( SGTELIB::TrainingSet    & C,
+                                        SGTELIB::Surrogate_Parameters & p );
+
 SGTELIB::Surrogate * Surrogate_Constructor ( SGTELIB::TrainingSet & C,
                                              SGTELIB::Surrogate_Parameters & p);
 

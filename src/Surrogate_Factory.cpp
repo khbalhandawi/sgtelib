@@ -101,6 +101,35 @@ SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
 }//
 
 
+
+
+
+/*----------------------------------------------------------*/
+SGTELIB::Surrogate * SGTELIB::Surrogate_Factory ( SGTELIB::TrainingSet & TS,
+                                                  SGTELIB::Surrogate_Parameters & p ) {
+/*----------------------------------------------------------*/
+
+  #ifdef SGTELIB_DEBUG
+    std::cout << "SGTELIB::Surrogate_Factory (TS,p) begin\n";
+    TS.info();
+  #endif
+
+  SGTELIB::Surrogate * S = Surrogate_Constructor(TS,p);
+
+  #ifdef SGTELIB_DEBUG
+    std::cout << "SGTELIB::Surrogate_Factory (TS,p) AFTER set param\n";
+    std::cout << "TS.info()\n";
+    TS.info();
+    std::cout << "S->info()\n";
+    S->info();
+    std::cout << "SGTELIB::Surrogate_Factory (TS,p) RETURN\n";
+  #endif
+
+  return S;
+
+}//
+
+
 /*----------------------------------------------------------*/
 SGTELIB::Surrogate * SGTELIB::Surrogate_Constructor ( SGTELIB::TrainingSet & TS,
                                                       SGTELIB::Surrogate_Parameters & p) {

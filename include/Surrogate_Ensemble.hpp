@@ -117,6 +117,8 @@ namespace SGTELIB {
     void compute_active_models ( void ) ;
     // Check the weight vector
     bool check_weight_vector ( void ) const;
+    // Set the weight vector
+    void set_weight_vector (const Matrix & W);
 
 
 

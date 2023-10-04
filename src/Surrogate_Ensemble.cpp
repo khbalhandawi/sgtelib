@@ -204,11 +204,19 @@ bool SGTELIB::Surrogate_Ensemble::init_private ( void ) {
     #ifdef ENSEMBLE_DEBUG
       std::cout << "Init model " << k << "/" << _kmax << ": " << _surrogates.at(k)->get_short_string();
     #endif
-    if (_surrogates.at(k)->build()){
+    if (_surrogates.at(k)->is_ready()) {
       _kready++;
       #ifdef ENSEMBLE_DEBUG
         std::cout << " (ready)\n";
       #endif
+    }
+    else {
+      if (_surrogates.at(k)->build()){
+        _kready++;
+        #ifdef ENSEMBLE_DEBUG
+          std::cout << " (ready)\n";
+        #endif
+      }
     }
   }  
   #ifdef ENSEMBLE_DEBUG
@@ -220,9 +228,6 @@ bool SGTELIB::Surrogate_Ensemble::init_private ( void ) {
   if (_kready<=1){
     return false;
   }
-
-  // Init weights with selection
-  compute_W_by_select();
 
   return true;
 }//
@@ -872,19 +877,17 @@ void SGTELIB::Surrogate_Ensemble::set_weight_vector (const int k){
 /*  external set of the weight vector   */
 /*          (with the whole matrix)     */
 /*--------------------------------------*/
-/*
 void SGTELIB::Surrogate_Ensemble::set_weight_vector (const SGTELIB::Matrix & W){
   if (_param.get_weight_type() != SGTELIB::WEIGHT_EXTERN){
     throw SGTELIB::Exception ( __FILE__ , __LINE__ ,
                "Surrogate_Ensemble::set_weight_vector (k,j): Not in EXTERN mode" );
   }
   // Set _W
-  _W = W;
+  _param.set_weight(W);
   // Check and reset
   reset_metrics();
   compute_active_models();
 }//
-*/
 
 /*--------------------------------------*/
 /*   check the weight vector            */
