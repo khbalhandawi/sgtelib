@@ -606,6 +606,13 @@ int SGTELIB::diff_ms(timeval t1, timeval t2){
 }//
 
 /*----------------------------------------*/
+/*  set random number generator seed      */
+/*----------------------------------------*/
+void SGTELIB::set_seed (int seed){
+  srand(seed);
+}//
+
+/*----------------------------------------*/
 /*  uniform rand generator               */
 /*----------------------------------------*/
 double SGTELIB::uniform_rand (void){

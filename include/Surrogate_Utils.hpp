@@ -179,6 +179,7 @@ namespace SGTELIB {
   double gammacdfinv( double f, double a, double b);
   double lower_incomplete_gamma ( const double x, const double p );
 
+  void set_seed (int seed);
   double uniform_rand (void);
   double quick_norm_rand (void);
 }
