@@ -865,7 +865,7 @@ bool SGTELIB::Surrogate::compute_metric ( const metric_t mt ){
       }
       else{
         // Otherwise, unscale
-        _trainingset.ZE_unscale(v);
+        v = _trainingset.ZE_unscale(v);
       }
 
       break;
