@@ -81,7 +81,7 @@ int main ( int argc , char ** argv ) {
 
     rows = 0;
     cols = 0;
-    file.open("../../sgtelib/test_data/X.txt");
+    file.open("./X.txt");
 
     count_rows(file, rows, cols);
     double** doubleX = allocate_array(rows,cols); // create new double array
@@ -92,7 +92,7 @@ int main ( int argc , char ** argv ) {
     
     rows = 0;
     cols = 0;
-    file.open("../../sgtelib/test_data/X.txt");
+    file.open("./X.txt");
 
     count_rows(file, rows, cols);
     double** doubleZ = allocate_array(rows,cols); // create new double array
@@ -103,7 +103,7 @@ int main ( int argc , char ** argv ) {
 
     rows = 0;
     cols = 0;
-    file.open("../../sgtelib/test_data/X.txt");
+    file.open("./X.txt");
 
     count_rows(file, rows, cols);
     double** doubleXX = allocate_array(rows,cols); // create new double array
